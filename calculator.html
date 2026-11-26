@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern calculator | CodeByGaurav</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 350px;
+            background: #111827;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45), 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .calculation {
+            width: 100%;
+            min-height: 80px;
+            font-size: 42px;
+            text-align: end;
+            padding: 10px 15px;
+            border-radius: 8px;
+            background: #f9fafb;
+            color: #111827;
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.2);
+            word-wrap: break-word;
+            margin-bottom: 22px;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        button {
+            height: 55px;
+            padding: 10px;
+            border: none;
+            outline: none;
+            border-radius: 8px;
+            font-size: 21px;
+            font-weight: 600;
+            color: #f9fafb;
+            background: #374151;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #1f2937, 0 8px 14px rgba(0, 0, 0, 0.25);
+            transition: all 0.15s ease;
+        }
+
+        button:hover {
+            background: #4b5563;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 #1f2937, 0 11px 18px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #1f2937, 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .spanBtn {
+            grid-column: span 2;
+        }
+
+        .operator {
+            background: #14b8a6;
+            color: #fff;
+            box-shadow: 0 5px 0 #0f766e, 0 8px 14px rgba(20, 154, 166, 0.25);
+        }
+
+        .operator:hover {
+            background: #2dd4bf;
+        }
+
+        .operator:active {
+            box-shadow: 0 1px 0 #0f766e, 0 3px 6px rgba(20, 184, 166, 0.2);
+        }
+
+        /* ---------- Upgrade modal ---------- */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(3, 7, 18, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            z-index: 100;
+        }
+
+        .overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            width: 100%;
+            max-width: 380px;
+            max-height: 92vh;
+            overflow-y: auto;
+            background: #111827;
+            color: #f9fafb;
+            border-radius: 16px;
+            padding: 26px 22px 22px;
+            text-align: center;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+            border: 1px solid #1f2937;
+            animation: pop 0.25s ease;
+        }
+
+        @keyframes pop {
+            from { transform: scale(0.9); opacity: 0; }
+            to   { transform: scale(1);   opacity: 1; }
+        }
+
+        .modal .lock {
+            font-size: 38px;
+            margin-bottom: 6px;
+        }
+
+        .modal h2 {
+            font-size: 22px;
+            margin-bottom: 6px;
+        }
+
+        .modal p.sub {
+            font-size: 14px;
+            color: #9ca3af;
+            margin-bottom: 18px;
+        }
+
+        .plan {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: left;
+            gap: 10px;
+            background: #1f2937;
+            border: 2px solid #374151;
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+        }
+
+        .plan.popular {
+            border-color: #14b8a6;
+        }
+
+        .plan .badge {
+            position: absolute;
+            top: -10px;
+            right: 12px;
+            background: #14b8a6;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .plan h3 {
+            font-size: 16px;
+        }
+
+        .plan small {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .plan .price {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2dd4bf;
+            white-space: nowrap;
+        }
+
+        .plan .price span {
+            font-size: 12px;
+            color: #9ca3af;
+            font-weight: 400;
+        }
+
+        .buyBtn {
+            width: 100%;
+            height: 48px;
+            font-size: 17px;
+            margin-top: 6px;
+            background: #14b8a6;
+            box-shadow: 0 4px 0 #0f766e;
+        }
+
+        .buyBtn:hover {
+            background: #2dd4bf;
+        }
+
+        .laterBtn {
+            width: 100%;
+            height: 42px;
+            font-size: 14px;
+            margin-top: 14px;
+            background: transparent;
+            color: #9ca3af;
+            box-shadow: none;
+        }
+
+        .laterBtn:hover {
+            background: transparent;
+            color: #f9fafb;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .laterBtn:active {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .plan input {
+            display: none;
+        }
+
+        .plan {
+            cursor: pointer;
+        }
+
+        .plan.selected {
+            border-color: #14b8a6;
+            background: #0f2a2a;
+        }
+
+        .thanks {
+            display: none;
+            padding: 10px 0;
+        }
+
+        .thanks .tick {
+            font-size: 48px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="calculation">0</div>
+        <div class="buttons">
+            <button id="clear">AC</button>
+            <button id="delete">DEL</button>
+            <button class="oprBtn">%</button>
+            <button class="operator oprBtn">/</button>
+
+            <button class="numBtn">7</button>
+            <button class="numBtn">8</button>
+            <button class="numBtn">9</button>
+            <button class="operator oprBtn">*</button>
+
+            <button class="numBtn">4</button>
+            <button class="numBtn">5</button>
+            <button class="numBtn">6</button>
+            <button class="operator oprBtn">-</button>
+
+            <button class="numBtn">1</button>
+            <button class="numBtn">2</button>
+            <button class="numBtn">3</button>
+            <button class="operator oprBtn">+</button>
+
+            <button class="spanBtn numBtn">0</button>
+            <button onclick="addDecimal()">.</button>
+            <button id="equalBtn" class="operator">=</button>
+        </div>
+    </div>
+
+    <!-- Upgrade / Buy a plan popup -->
+    <div class="overlay" id="upgradeOverlay">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="upgradeTitle">
+            <div id="planView">
+                <div class="lock">🔒</div>
+                <h2 id="upgradeTitle">Upgrade to see your answer</h2>
+                <p class="sub">Choose a plan to unlock results and keep calculating.</p>
+
+                <label class="plan" data-plan="Basic">
+                    <input type="radio" name="plan" value="Basic">
+                    <div>
+                        <h3>Basic</h3>
+                        <small>50 results per day</small>
+                    </div>
+                    <div class="price">$1.99<span>/mo</span></div>
+                </label>
+
+                <label class="plan popular selected" data-plan="Pro">
+                    <span class="badge">Most popular</span>
+                    <input type="radio" name="plan" value="Pro" checked>
+                    <div>
+                        <h3>Pro</h3>
+                        <small>Unlimited results</small>
+                    </div>
+                    <div class="price">$4.99<span>/mo</span></div>
+                </label>
+
+                <label class="plan" data-plan="Lifetime">
+                    <input type="radio" name="plan" value="Lifetime">
+                    <div>
+                        <h3>Lifetime</h3>
+                        <small>Pay once, use forever</small>
+                    </div>
+                    <div class="price">$19.99</div>
+                </label>
+
+                <button class="buyBtn" id="buyBtn">Buy Pro Plan</button>
+                <button class="laterBtn" id="laterBtn">Maybe later</button>
+            </div>
+
+            <div class="thanks" id="thanksView">
+                <div class="tick">✅</div>
+                <h2>Thank you!</h2>
+                <p class="sub" id="thanksText"></p>
+                <button class="buyBtn" id="doneBtn">Back to calculator</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const calculation = document.querySelector(".calculation");
+        const oprBtn = document.querySelectorAll(".oprBtn");
+        const numBtn = document.querySelectorAll(".numBtn");
+
+        let number = "";
+
+        // Decimal Function
+        function addDecimal() {
+            // find the current number
+            let currentNumber = calculation.innerText.split(/[+/*%-]/).pop();
+            // add a decimal only if the current number doesn't have one
+            if (!currentNumber.includes(".")) {
+                number += ".";
+                calculation.innerText = number;
+            }
+        }
+
+        numBtn.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                number += btn.innerText;
+                calculation.innerText = number;
+            });
+        });
+
+        // Operator buttons
+        oprBtn.forEach((opp) => {
+            opp.addEventListener("click", () => {
+                if (number == "") {
+                    return;
+                }
+
+                let operationCheck = calculation.innerText.slice(-1);
+                if ("+-/*%".includes(operationCheck)) {
+                    return;
+                }
+
+                number += opp.innerText;
+                calculation.innerText = number;
+            });
+        });
+
+        // ---------- Upgrade popup ----------
+        const overlay = document.getElementById("upgradeOverlay");
+        const planView = document.getElementById("planView");
+        const thanksView = document.getElementById("thanksView");
+        const buyBtn = document.getElementById("buyBtn");
+        const plans = document.querySelectorAll(".plan");
+        let selectedPlan = "Pro";
+
+        function openUpgrade() {
+            planView.style.display = "block";
+            thanksView.style.display = "none";
+            overlay.classList.add("show");
+        }
+
+        function closeUpgrade() {
+            overlay.classList.remove("show");
+        }
+
+        // Equals button now asks the user to upgrade instead of showing the result
+        document.getElementById("equalBtn").addEventListener("click", () => {
+            if (number == "") {
+                return;
+            }
+            openUpgrade();
+        });
+
+        plans.forEach((plan) => {
+            plan.addEventListener("click", () => {
+                plans.forEach((p) => p.classList.remove("selected"));
+                plan.classList.add("selected");
+                selectedPlan = plan.dataset.plan;
+                buyBtn.innerText = "Buy " + selectedPlan + " Plan";
+            });
+        });
+
+        buyBtn.addEventListener("click", () => {
+            if (buyBtn.id === "buyBtn" && planView.style.display !== "none") {
+                // Demo only: no real payment happens here.
+                document.getElementById("thanksText").innerText =
+                    "You picked the " + selectedPlan + " plan. (This is a demo, no payment was made.)";
+                planView.style.display = "none";
+                thanksView.style.display = "block";
+            }
+        });
+
+        document.getElementById("laterBtn").addEventListener("click", closeUpgrade);
+        document.getElementById("doneBtn").addEventListener("click", closeUpgrade);
+
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) closeUpgrade();
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") closeUpgrade();
+        });
+
+        // All clear
+        document.getElementById("clear").addEventListener("click", () => {
+            calculation.innerText = "0";
+            number = "";
+        });
+
+        // Delete button
+        document.getElementById("delete").addEventListener("click", () => {
+            let delChar = calculation.innerText.slice(0, -1);
+            number = delChar;
+            calculation.innerText = number;
+
+            if (delChar.length == "0") {
+                calculation.innerText = "0";
+                number = "";
+            }
+        });
+    </script>
+</body>
+</html>
